@@ -3,53 +3,89 @@
         data() {
             return {
                 // 家
-                homeName: 'Tian Mi Xiao Jia',
-                homeSize: 100,
-                homeAddress: 'GuangDong GuangZhou',
-                homeStyle: 'Dan\'s Style',
+                homePersonList: ['Dan'],
                 // 奇
                 qiName: 'Qi',
-                qiWeight: 140,
-                qiHeight: 175,
-                qiAge: 27,
                 // 丹
                 danName: 'Dan',
-                danWeight: 110,
-                danHeight: 170,
-                danAge: 28,
                 // 沙发
-                sofaName: 'Ikea',
-                sofaWeight: 100,
-                sofaSize: 50,
-                sofaAge: 2,
+                sofaPersonList: ['Dan'],
                 // 电视
-                tvBrand: 'LG',
-                tvSize: 42,
-                tvAge: 0.7,
                 tvStatus: 1,
+                tvPersonList: ['Dan'],
                 // 电脑
-                pcBrand: 'Apple',
-                pcAge: 1,
                 pcStatus: 0,
+                pcPersonList: [],
             };
         },
         methods: {
             // 家
-            backHome(person) {},
-            leaveHome(person) {},
-            // Qi
-            kissDan() {},
-            // Dan
-            kissQi() {},
+            atHome(person) {
+              return this.homePersonList.includes(person);
+            },
+            backHome(person) {
+              this.homePersonList.push(person);
+              if (person === this.qiName && this.atHome(this.danName)) this.kiss(this.qiName, this.danName);
+            },
+            leaveHome(person) {
+              this.homePersonList = this.homePersonList.filter(_it => _it !== person);
+            },
+
+            // person
+            kiss(person1, person2) {
+              console.log(person1 + 'kiss' + person2);
+            },
+
             // 沙发
-            sitSoft(person) {},
-            moveSoft() {},
+            atSofa(person) {
+              return this.sofaPersonList.includes(person);
+            },
+            sitSofa(person) {
+              this.sofaPersonList.push(person);
+              if (person === this.qiName && this.atSofa(this.danName)) this.kiss(this.danName, this.qiName);
+            },
+
             // 电视
-            openTv() {},
-            closeTv() {},
+            atTv(person) {
+              return this.tvPersonList.includes(person);
+            },
+            openTv(person) {
+              if (!this.tvStatus) this.tvStatus = 1;
+              this.tvPersonList.push(person);
+              if (person === this.qiName && this.atTv(this.danName)) {
+                this.leaveTv(this.danName);
+              }
+              if (!this.atPc(this.qiName)) {
+                this.openPc(this.danName);
+              } else {
+                this.leaveHome(this.danName);
+              }
+            },
+            leaveTv(person) {
+              this.tvPersonList = this.tvPersonList.filter(_it => _it !== person);
+              if (this.tvPersonList.length === 0) this.tvStatus = 0;
+            },
+
             // 电脑
-            openPc() {},
-            closePc() {},
+            atPc(person) {
+              return this.pcPersonList.includes(person);
+            },
+            openPc(person) {
+              if (!this.pcStatus) this.pcStatus = 1;
+              this.pcPersonList.push(person);
+              if (person === this.qiName && this.atPc(this.danName)) {
+                this.leavePc(this.danName);
+              }
+              if (!this.atTv(this.qiName)) {
+                this.openTV(this.danName);
+              } else {
+                this.leaveHome(this.danName);
+              }
+            },
+            leavePc(person) {
+              this.pcPersonList = this.pcPersonList.filter(_it => _it !== person);
+              if (this.pcPersonList.length === 0) this.pcStatus = 0;
+            },
         },
     }
 </script>
