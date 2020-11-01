@@ -1,41 +1,12 @@
 <script>
-  // 中介者，协调各个用例的依赖关系，各个用例间并不知情
+  // 中介者，并且同时是观察者，减轻中介者的逻辑复杂度
+  // 并做不下来，几个用例之间依赖交互太多，并不简单，感觉难以实现
+  // 只有 back-home 简单一点
   const pageConfig = {
     mixins: [],
     methods: {
-      backHome(person) {
-        this._backHome(person);
-        if (person === this.qiName && this.atHome(this.danName)) this.kiss(this.qiName, this.danName);
-      },
-      kiss(person1, person2) {
-        console.log(person1 + 'kiss' + person2);
-      },
-      sitSofa(person) {
-        this._sitSofa(person);
-        if (person === this.qiName && this.atSofa(this.danName)) this.kiss(this.danName, this.qiName);
-      },
-      openTv(person) {
-        this._openTv(person);
-        if (person === this.qiName && this.atTv(this.danName)) {
-          this.leaveTv(this.danName);
-        }
-        if (!this.atPc(this.qiName)) {
-          this.openPc(this.danName);
-        } else {
-          this.leaveHome(this.danName);
-        }
-      },
-      openPc(person) {
-        this._openPc(person);
-        if (person === this.qiName && this.atPc(this.danName)) {
-          this.leavePc(this.danName);
-        }
-        if (!this.atTv(this.qiName)) {
-          this.openTv(this.danName);
-        } else {
-          this.leaveHome(this.danName);
-        }
-      },
+      emit(key, ...params) { this.$emit(key, ...params) },
+      on(key, fn) { this.$on(key, fn); },
     },
   };
 
@@ -52,8 +23,9 @@
       atHome(person) {
         return this.homePersonList.includes(person);
       },
-      _backHome(person) {
+      backHome(person) {
         this.homePersonList.push(person);
+        this.emit('back-home', person, person => this.atHome(person));
       },
       leaveHome(person) {
         this.homePersonList = this.homePersonList.filter(_it => _it !== person);
@@ -70,6 +42,16 @@
         // 丹
         danName: 'Dan',
       };
+    },
+    methods: {
+      kiss(person1, person2) {
+        console.log(person1 + 'kiss' + person2);
+      },
+    },
+    mounted() {
+      this.on('back-home', (person, atHome) => {
+        if (person === this.qiName && atHome(this.danName)) this.kiss(this.qiName, this.danName);
+      });
     },
   });
 
