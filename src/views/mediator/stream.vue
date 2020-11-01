@@ -1,4 +1,5 @@
 <script>
+  // 如果世界有流
   export default {
     data() {
       return {
@@ -25,7 +26,6 @@
       },
       backHome(person) {
         this.homePersonList.push(person);
-        if (person === this.qiName && this.atHome(this.danName)) this.kiss(this.qiName, this.danName);
       },
       leaveHome(person) {
         this.homePersonList = this.homePersonList.filter(_it => _it !== person);
@@ -42,7 +42,6 @@
       },
       sitSofa(person) {
         this.sofaPersonList.push(person);
-        if (person === this.qiName && this.atSofa(this.danName)) this.kiss(this.danName, this.qiName);
       },
 
       // 电视
@@ -52,14 +51,6 @@
       openTv(person) {
         if (!this.tvStatus) this.tvStatus = 1;
         this.tvPersonList.push(person);
-        if (person === this.qiName && this.atTv(this.danName)) {
-          this.leaveTv(this.danName);
-        }
-        if (!this.atPc(this.qiName)) {
-          this.openPc(this.danName);
-        } else {
-          this.leaveHome(this.danName);
-        }
       },
       leaveTv(person) {
         this.tvPersonList = this.tvPersonList.filter(_it => _it !== person);
@@ -73,19 +64,51 @@
       openPc(person) {
         if (!this.pcStatus) this.pcStatus = 1;
         this.pcPersonList.push(person);
-        if (person === this.qiName && this.atPc(this.danName)) {
-          this.leavePc(this.danName);
-        }
-        if (!this.atTv(this.qiName)) {
-          this.openTV(this.danName);
-        } else {
-          this.leaveHome(this.danName);
-        }
       },
       leavePc(person) {
         this.pcPersonList = this.pcPersonList.filter(_it => _it !== person);
         if (this.pcPersonList.length === 0) this.pcStatus = 0;
       },
+    },
+    mounted() {
+      // 家
+      this.$watch('homePersonList', (newValue, oldValue) => {
+        if (oldValue.includes(this.qiName)) return;
+        if (newValue.includes(this.qiName) && newValue.includes(this.danName)) {
+          this.kiss(this.qiName, this.danName);
+        }
+      });
+      // 沙发
+      this.$watch('sofaPersonList', (newValue, oldValue) => {
+        if (!oldValue.includes(this.qiName)) return;
+        if (newValue.includes(this.qiName) && newValue.includes(this.danName)) {
+          this.kiss(this.danName, this.qiName);
+        }
+      });
+      // 电视
+      this.$watch('tvPersonList', (newValue, oldValue) => {
+        if (!oldValue.includes(this.qiName) && newValue.includes(this.qiName) && newValue.includes(this.danName)) {
+          this.leaveTv(this.danName);
+        }
+        if (newValue.includes(this.qiName) && this.atPc(this.qiName)) {
+          this.leaveHome(this.danName);
+        }
+        if (newValue.includes(this.qiName) && !this.atPc(this.qiName)) {
+          this.openPc(this.danName);
+        }
+      });
+      // 电脑
+      this.$watch('tvPersonList', (newValue, oldValue) => {
+        if (!oldValue.includes(this.qiName) && newValue.includes(this.qiName) && newValue.includes(this.danName)) {
+          this.leavePc(this.danName);
+        }
+        if (newValue.includes(this.qiName) && this.atTv(this.qiName)) {
+          this.leaveHome(this.danName);
+        }
+        if (newValue.includes(this.qiName) && !this.atTv(this.qiName)) {
+          this.openTv(this.danName);
+        }
+      });
     },
   }
 </script>
